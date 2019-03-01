@@ -1,0 +1,95 @@
+terminal QUOTATIONS, TYPE, WRITE, RETURN, READ, MAIN, IF, ELSE, END, BEGIN,
+               ID, NUMBER, LEBRAC, RIGBRAC, SCOLON, COMMA, PLUS, MINUS,
+               DIVIDE, MULT, NOTEQUAL, EQUAL, COLEQUAL;
+
+nonterminal Integer Program, _Program, MethodDecl;
+
+nonterminal FormalParams, FormalParam, _FormalParams, unmdstmt, mdstmt,
+            Block, LocalVarDecl, AssignStmt, Other,
+            ReturnStmt, WriteStmt, ReadStmt,
+            ExprOps, Expr, MultiExpr, MultiExprOps,
+            BoolExpr, ActualParams, ActualParam,
+            PrimaryExpr, Statement, _Statement;
+
+Program ::= MethodDecl:d _Program:g
+               {:
+                  RESULT = d + g;
+               :};
+
+_Program ::= MethodDecl:d _Program:g
+            {:
+               RESULT = d + g;
+            :}
+            | {:RESULT = 0;:};
+
+MethodDecl ::= TYPE MAIN ID LEBRAC FormalParams RIGBRAC Block
+            {:
+               RESULT = 1;
+            :}
+            | TYPE ID LEBRAC FormalParams RIGBRAC Block
+            {:
+               RESULT = 1;
+            :};
+
+FormalParams ::= FormalParam _FormalParams
+               |
+               ;
+
+_FormalParams ::= COMMA FormalParam _FormalParams
+               |
+               ;
+
+FormalParam ::= TYPE ID
+               ;
+
+Block ::= BEGIN _Statement Statement END {::};
+
+Statement ::= _Statement Statement
+               | {::};
+
+Other ::= Block |
+         LocalVarDecl |
+         AssignStmt |
+         ReturnStmt |
+         WriteStmt |
+         ReadStmt  {::};
+
+LocalVarDecl ::= TYPE ID SCOLON | TYPE AssignStmt ;
+
+
+AssignStmt ::= ID COLEQUAL Expr SCOLON | ID COLEQUAL QUOTATIONS SCOLON ;
+
+ReturnStmt ::= RETURN Expr SCOLON;
+
+_Statement ::= mdstmt | unmdstmt ;
+
+mdstmt ::= IF LEBRAC BoolExpr RIGBRAC mdstmt ELSE mdstmt | Other ;
+
+unmdstmt ::= IF LEBRAC BoolExpr RIGBRAC _Statement |
+             IF LEBRAC BoolExpr RIGBRAC mdstmt ELSE unmdstmt ;
+
+WriteStmt ::= WRITE LEBRAC Expr COMMA QUOTATIONS RIGBRAC SCOLON {::} ;
+
+ReadStmt ::= READ LEBRAC ID COMMA QUOTATIONS RIGBRAC SCOLON {::} ;
+
+Expr ::= MultiExpr  ExprOps {::};
+
+ExprOps ::= MINUS MultiExpr ExprOps |
+            PLUS MultiExpr ExprOps | {::};
+
+MultiExpr ::= PrimaryExpr MultiExprOps {::};
+
+MultiExprOps ::= MULT PrimaryExpr MultiExprOps
+                  | DIVIDE PrimaryExpr MultiExprOps  |{::};
+
+PrimaryExpr ::= NUMBER
+             | ID
+             | LEBRAC Expr RIGBRAC
+             | ID LEBRAC ActualParams RIGBRAC
+             {::};
+
+BoolExpr ::= Expr EQUAL Expr
+               | Expr NOTEQUAL Expr {::};
+
+ActualParams ::= Expr ActualParam |  {::};
+ActualParam ::= COMMA Expr ActualParam |  {::};
