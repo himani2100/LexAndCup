@@ -1,95 +1,95 @@
-terminal QUOTATIONS, TYPE, WRITE, RETURN, READ, MAIN, IF, ELSE, END, BEGIN,
-               ID, NUMBER, LEBRAC, RIGBRAC, SCOLON, COMMA, PLUS, MINUS,
-               DIVIDE, MULT, NOTEQUAL, EQUAL, COLEQUAL;
+terminal __01, __02, __03, __04, __05, __06, __07, __08, __09, __10,
+               __11, __12, __13, __14, __15, __16, __17, __18,
+               __19, __20, __21, __22, __23;
 
-nonterminal Integer Program, _Program, MethodDecl;
+nonterminal Integer _23, _24, _25;
 
-nonterminal FormalParams, FormalParam, _FormalParams, unmdstmt, mdstmt,
-            Block, LocalVarDecl, AssignStmt, Other,
-            ReturnStmt, WriteStmt, ReadStmt,
-            ExprOps, Expr, MultiExpr, MultiExprOps,
-            BoolExpr, ActualParams, ActualParam,
-            PrimaryExpr, Statement, _Statement;
+nonterminal _1, _2, _3, _4, _5,
+            _6, _7, _8, _9,
+            _10, _11, _12,
+            _13, _14, _15, _16,
+            _17, _18, _19,
+            _20, _21, _22;
 
-Program ::= MethodDecl:d _Program:g
+_23 ::= _25:_________01 _24:_________1
                {:
-                  RESULT = d + g;
+                  RESULT = _________01 + _________1;
                :};
 
-_Program ::= MethodDecl:d _Program:g
+_24 ::= _25:_________01 _24:_________1
             {:
-               RESULT = d + g;
+               RESULT = _________01 + _________1;
             :}
             | {:RESULT = 0;:};
 
-MethodDecl ::= TYPE MAIN ID LEBRAC FormalParams RIGBRAC Block
+_25 ::= __02 __06 __11 __13 _1 __14 _6
             {:
                RESULT = 1;
             :}
-            | TYPE ID LEBRAC FormalParams RIGBRAC Block
+            | __02 __11 __13 _1 __14 _6
             {:
                RESULT = 1;
             :};
 
-FormalParams ::= FormalParam _FormalParams
+_1 ::= _2 _3
                |
                ;
 
-_FormalParams ::= COMMA FormalParam _FormalParams
+_3 ::= __16 _2 _3
                |
                ;
 
-FormalParam ::= TYPE ID
+_2 ::= __02 __11
                ;
 
-Block ::= BEGIN _Statement Statement END {::};
+_6 ::= __10 _22 _21 __09 {::};
 
-Statement ::= _Statement Statement
+_21 ::= _22 _21
                | {::};
 
-Other ::= Block |
-         LocalVarDecl |
-         AssignStmt |
-         ReturnStmt |
-         WriteStmt |
-         ReadStmt  {::};
+_9 ::= _6 |
+         _7 |
+         _8 |
+         _10 |
+         _11 |
+         _12  {::};
 
-LocalVarDecl ::= TYPE ID SCOLON | TYPE AssignStmt ;
+_7 ::= __02 __11 __15 | __02 _8 ;
 
 
-AssignStmt ::= ID COLEQUAL Expr SCOLON | ID COLEQUAL QUOTATIONS SCOLON ;
+_8 ::= __11 __23 _14 __15 | __11 __23 __01 __15 ;
 
-ReturnStmt ::= RETURN Expr SCOLON;
+_10 ::= __04 _14 __15;
 
-_Statement ::= mdstmt | unmdstmt ;
+_22 ::= _5 | _4 ;
 
-mdstmt ::= IF LEBRAC BoolExpr RIGBRAC mdstmt ELSE mdstmt | Other ;
+_5 ::= __07 __13 _17 __14 _5 __08 _5 | _9 ;
 
-unmdstmt ::= IF LEBRAC BoolExpr RIGBRAC _Statement |
-             IF LEBRAC BoolExpr RIGBRAC mdstmt ELSE unmdstmt ;
+_4 ::= __07 __13 _17 __14 _22 |
+             __07 __13 _17 __14 _5 __08 _4 ;
 
-WriteStmt ::= WRITE LEBRAC Expr COMMA QUOTATIONS RIGBRAC SCOLON {::} ;
+_11 ::= __03 __13 _14 __16 __01 __14 __15 {::} ;
 
-ReadStmt ::= READ LEBRAC ID COMMA QUOTATIONS RIGBRAC SCOLON {::} ;
+_12 ::= __05 __13 __11 __16 __01 __14 __15 {::} ;
 
-Expr ::= MultiExpr  ExprOps {::};
+_14 ::= _15  _13 {::};
 
-ExprOps ::= MINUS MultiExpr ExprOps |
-            PLUS MultiExpr ExprOps | {::};
+_13 ::= __18 _15 _13 |
+            __17 _15 _13 | {::};
 
-MultiExpr ::= PrimaryExpr MultiExprOps {::};
+_15 ::= _20 _16 {::};
 
-MultiExprOps ::= MULT PrimaryExpr MultiExprOps
-                  | DIVIDE PrimaryExpr MultiExprOps  |{::};
+_16 ::= __20 _20 _16
+                  | __19 _20 _16  |{::};
 
-PrimaryExpr ::= NUMBER
-             | ID
-             | LEBRAC Expr RIGBRAC
-             | ID LEBRAC ActualParams RIGBRAC
+_20 ::= __12
+             | __11
+             | __13 _14 __14
+             | __11 __13 _18 __14
              {::};
 
-BoolExpr ::= Expr EQUAL Expr
-               | Expr NOTEQUAL Expr {::};
+_17 ::= _14 __22 _14
+               | _14 __21 _14 {::};
 
-ActualParams ::= Expr ActualParam |  {::};
-ActualParam ::= COMMA Expr ActualParam |  {::};
+_18 ::= _14 _19 |  {::};
+_19 ::= __16 _14 _19 |  {::};

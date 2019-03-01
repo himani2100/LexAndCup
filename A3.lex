@@ -6,43 +6,50 @@ import java_cup.runtime.*;
 %type Symbol
 %function next_token
 %class A3Scanner
-%eofval{ return null;
-%eofval}
+%{
+   Symbol _5000(int _5001) {
+      return new Symbol(_5001);
+   }
+%}
 
-NONE = (\t|\r|\n|" ")
-%state COMMENT
+%init{
+   yybegin(_600);
+%init}
+
+NONE = (\011|\015|\012|" ")
+%state _600, _601
 
 %%
-<YYINITIAL>"/**" {yybegin(COMMENT);}
-<COMMENT>"**/" {yybegin(YYINITIAL);}
-<COMMENT>.|\r|\n { }
+<_600>"/**" {yybegin(_601);}
+<_601>"**/" {yybegin(_600);}
+<_601>.|\r|\n { }
 
-<YYINITIAL>\"[^\"]*\" {return new Symbol(A3Symbol.QUOTATIONS);}
+<_600>\"[^\"]*\" {return _5000(2);}
 
-<YYINITIAL>INT|REAL|STRING {return new Symbol(A3Symbol.TYPE);}
-<YYINITIAL>WRITE {return new Symbol(A3Symbol.WRITE);}
-<YYINITIAL>RETURN {return new Symbol(A3Symbol.RETURN);}
-<YYINITIAL>READ {return new Symbol(A3Symbol.READ);}
-<YYINITIAL>MAIN {return new Symbol(A3Symbol.MAIN);}
-<YYINITIAL>IF {return new Symbol(A3Symbol.IF);}
-<YYINITIAL>ELSE {return new Symbol(A3Symbol.ELSE);}
-<YYINITIAL>END {return new Symbol(A3Symbol.END);}
-<YYINITIAL>BEGIN {return new Symbol(A3Symbol.BEGIN);}
+<_600>INT|REAL|STRING {return _5000(3);}
+<_600>WRITE {return _5000(4);}
+<_600>RETURN {return _5000(5);}
+<_600>READ {return _5000(6);}
+<_600>MAIN {return _5000(7);}
+<_600>IF {return _5000(8);}
+<_600>ELSE {return _5000(9);}
+<_600>END {return _5000(10);}
+<_600>BEGIN {return _5000(11);}
 
-<YYINITIAL>[a-zA-Z][a-zA-Z0-9]* {return new Symbol(A3Symbol.ID);}
-<YYINITIAL>[0-9]+(\.[0-9]+)? {return new Symbol(A3Symbol.NUMBER);}
+<_600>[a-zA-Z][a-zA-Z0-9]* {return _5000(12);}
+<_600>[0-9]+(\.[0-9]+)? {return _5000(13);}
 
 
-<YYINITIAL>"(" {return new Symbol(A3Symbol.LEBRAC);}
-<YYINITIAL>")" {return new Symbol(A3Symbol.RIGBRAC);}
-<YYINITIAL>";" {return new Symbol(A3Symbol.SCOLON);}
-<YYINITIAL>"," {return new Symbol(A3Symbol.COMMA);}
-<YYINITIAL>"+" {return new Symbol(A3Symbol.PLUS);}
-<YYINITIAL>"-" {return new Symbol(A3Symbol.MINUS);}
-<YYINITIAL>"/" {return new Symbol(A3Symbol.DIVIDE);}
-<YYINITIAL>"*" {return new Symbol(A3Symbol.MULT);}
-<YYINITIAL>"!=" {return new Symbol(A3Symbol.NOTEQUAL);}
-<YYINITIAL>"==" {return new Symbol(A3Symbol.EQUAL);}
-<YYINITIAL>":=" {return new Symbol(A3Symbol.COLEQUAL);}
+<_600>"(" {return _5000(14);}
+<_600>")" {return _5000(15);}
+<_600>";" {return _5000(16);}
+<_600>"," {return _5000(17);}
+<_600>"+" {return _5000(18);}
+<_600>"-" {return _5000(19);}
+<_600>"/" {return _5000(20);}
+<_600>"*" {return _5000(21);}
+<_600>"!=" {return _5000(22);}
+<_600>"==" {return _5000(23);}
+<_600>":=" {return _5000(24);}
 
 {NONE} {}
