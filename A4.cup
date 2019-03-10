@@ -1,95 +1,116 @@
-terminal QUOTATIONS, TYPE, WRITE, RETURN, READ, MAIN, IF, ELSE, END, BEGIN,
+terminal QUOTATIONS, WRITE, RETURN, READ, MAIN, IF, ELSE, END, BEGIN,
                ID, NUMBER, LEBRAC, RIGBRAC, SCOLON, COMMA, PLUS, MINUS,
-               DIVIDE, MULT, NOTEQUAL, EQUAL, COLEQUAL;
+               DIVIDE, MULT, NOTEQUAL, EQUAL, COLEQUAL, INT, REAL, STRING;
 
-nonterminal Integer Program, _Program, MethodDecl;
-
-nonterminal FormalParams, FormalParam, _FormalParams, unmdstmt, mdstmt,
-            Block, LocalVarDecl, AssignStmt, Other,
-            ReturnStmt, WriteStmt, ReadStmt,
-            ExprOps, Expr, MultiExpr, MultiExprOps,
-            BoolExpr, ActualParams, ActualParam,
-            PrimaryExpr, Statement, _Statement;
+nonterminal String Program, _Program, MethodDecl,
+                  FormalParams, FormalParam, _FormalParams, unmdstmt, mdstmt,
+                  Block, LocalVarDecl, AssignStmt, Other,
+                  ReturnStmt, WriteStmt, ReadStmt,
+                  ExprOps, Expr, MultiExpr, MultiExprOps,
+                  BoolExpr, ActualParams, ActualParam,
+                  PrimaryExpr, Statement, _Statement, Type;
 
 Program ::= MethodDecl:d _Program:g
                {:
-                  RESULT = d + g;
+                  RESULT = "import java.io.*;\npublic class A4\n{\nstatic BufferedReader $br;\nstatic BufferedWriter $bw;\n" + d + g + "\n}";
                :};
+
+Type ::= INT {:
+                  RESULT = " int ";
+               :}
+         | REAL
+               {:
+                  RESULT = " double ";
+               :}
+               | STRING
+               {:
+                  RESULT = " String ";
+               :};
+
 
 _Program ::= MethodDecl:d _Program:g
             {:
                RESULT = d + g;
             :}
-            | {:RESULT = 0;:};
+            | {:RESULT = "";:};
 
-MethodDecl ::= TYPE MAIN ID LEBRAC FormalParams RIGBRAC Block
+MethodDecl ::= Type:h MAIN ID:i LEBRAC FormalParams:f RIGBRAC Block:b
             {:
-               RESULT = 1;
+               RESULT = "public static void main (String[] args) throws Exception" + b + "\n";
             :}
-            | TYPE ID LEBRAC FormalParams RIGBRAC Block
+            | Type:h ID:i LEBRAC FormalParams:f RIGBRAC Block:b
             {:
-               RESULT = 1;
+               RESULT = "static"+ h + i + "("+ f + ")throws Exception " + b + "\n";
             :};
 
-FormalParams ::= FormalParam _FormalParams
-               |
+FormalParams ::= FormalParam:f _FormalParams:p {: RESULT = f + p + ""; :}
+               | {:RESULT="";:}
                ;
 
-_FormalParams ::= COMMA FormalParam _FormalParams
-               |
+_FormalParams ::= COMMA FormalParam:f _FormalParams:p {: RESULT = ", " + f + p; :}
+               | {:RESULT="";:}
                ;
 
-FormalParam ::= TYPE ID
+FormalParam ::= Type:h ID:i {: RESULT = h + i + ""; :}
                ;
 
-Block ::= BEGIN _Statement Statement END {::};
+Block ::= BEGIN _Statement:_s Statement:s END {: RESULT = "{\n" + _s +"\n"+ s +"\n}"; :};
 
-Statement ::= _Statement Statement
-               | {::};
+Statement ::= _Statement:_s Statement:s
+               {: RESULT = "\n" + _s + s + "\n"; :} | {:RESULT="";:};
 
-Other ::= Block |
-         LocalVarDecl |
-         AssignStmt |
-         ReturnStmt |
-         WriteStmt |
-         ReadStmt  {::};
+Other ::= Block:b
+         |  LocalVarDecl:lv {: RESULT = lv; :}
+         |  AssignStmt:as {: RESULT = as + ""; :}
+         |  ReturnStmt:rs {: RESULT = rs + ""; :}
+         |  WriteStmt:ws {: RESULT = ws + ""; :}
+         |  ReadStmt:rt  {: RESULT = rt + ""; :};
 
-LocalVarDecl ::= TYPE ID SCOLON | TYPE AssignStmt ;
+LocalVarDecl ::= Type:h ID:i SCOLON {: RESULT =  h + i + ";"; :}
+               | Type:h AssignStmt:as {: RESULT = h + as + ""; :};
 
 
-AssignStmt ::= ID COLEQUAL Expr SCOLON | ID COLEQUAL QUOTATIONS SCOLON ;
+AssignStmt ::= ID:i COLEQUAL Expr:ex SCOLON {: RESULT =  i + "= " + ex +";"; :}
+               | ID:i COLEQUAL QUOTATIONS:q SCOLON {: RESULT =  i + "= " + q +";"; :};
 
-ReturnStmt ::= RETURN Expr SCOLON;
+ReturnStmt ::= RETURN Expr:ex SCOLON {: RESULT =  "return " + ex +";"; :};
 
-_Statement ::= mdstmt | unmdstmt ;
+_Statement ::= mdstmt:m {: RESULT =  m + ""; :}
+               | unmdstmt:um {: RESULT =  um + ""; :};
 
-mdstmt ::= IF LEBRAC BoolExpr RIGBRAC mdstmt ELSE mdstmt | Other ;
+mdstmt ::= IF LEBRAC BoolExpr:be RIGBRAC mdstmt:m ELSE mdstmt:d {: RESULT = "if( " + be + ")\n" + m +" else " + d; :}
+            | Other:o {: RESULT =  o + ""; :} ;
 
-unmdstmt ::= IF LEBRAC BoolExpr RIGBRAC _Statement |
-             IF LEBRAC BoolExpr RIGBRAC mdstmt ELSE unmdstmt ;
+unmdstmt ::= IF LEBRAC BoolExpr:be RIGBRAC _Statement:_s {: RESULT = "if( " + be + ")\n" + _s; :}
+            |
+             IF LEBRAC BoolExpr:be RIGBRAC mdstmt:m ELSE unmdstmt:um {: RESULT = "if( " + be + ")\n" + m +" else " + um; :};
 
-WriteStmt ::= WRITE LEBRAC Expr COMMA QUOTATIONS RIGBRAC SCOLON {::} ;
+WriteStmt ::= WRITE LEBRAC Expr:ex COMMA QUOTATIONS:q RIGBRAC SCOLON {: RESULT = "$bw = new BufferedWriter(new FileWriter(" + q +"));\n$bw.write(\"\"+ "+ex+");\n$bw.close();"; :};
 
-ReadStmt ::= READ LEBRAC ID COMMA QUOTATIONS RIGBRAC SCOLON {::} ;
+ReadStmt ::= READ LEBRAC ID:i COMMA QUOTATIONS:q RIGBRAC SCOLON {: RESULT = "$br = new BufferedReader(new FileReader(" + q + "));\n" + i + " = new Integer($br.readLine()).intValue();\n$br.close();"; :};
 
-Expr ::= MultiExpr  ExprOps {::};
+Expr ::= MultiExpr:me  ExprOps:eo {: RESULT = me + eo + ""; :};
 
-ExprOps ::= MINUS MultiExpr ExprOps |
-            PLUS MultiExpr ExprOps | {::};
+ExprOps ::= MINUS MultiExpr:me ExprOps:eo {: RESULT = "-" + me + eo + ""; :}
+            |
+            PLUS MultiExpr:me ExprOps:eo {: RESULT = "+" + me + eo + ""; :}
+            |  {:RESULT="";:}  ;
 
-MultiExpr ::= PrimaryExpr MultiExprOps {::};
+MultiExpr ::= PrimaryExpr:pe MultiExprOps:meo {:RESULT = pe + meo + ""; :};
 
-MultiExprOps ::= MULT PrimaryExpr MultiExprOps
-                  | DIVIDE PrimaryExpr MultiExprOps  |{::};
+MultiExprOps ::= MULT PrimaryExpr:pe MultiExprOps:meo {:RESULT = "*" + pe + meo; :}
+                  |
+                  DIVIDE PrimaryExpr:pe MultiExprOps:meo  {:RESULT = "/" + pe + meo; :}
+                  | {:RESULT="";:};
 
-PrimaryExpr ::= NUMBER
-             | ID
-             | LEBRAC Expr RIGBRAC
-             | ID LEBRAC ActualParams RIGBRAC
-             {::};
+PrimaryExpr ::= NUMBER:n {: RESULT = n + ""; :}
+             | ID:i {: RESULT = i + ""; :}
+             | LEBRAC Expr:ex RIGBRAC {: RESULT = "("+ ex +")"; :}
+             | ID:i LEBRAC ActualParams:ap RIGBRAC {: RESULT = i+"(" +ap +")"; :}
+             ;
 
-BoolExpr ::= Expr EQUAL Expr
-               | Expr NOTEQUAL Expr {::};
+BoolExpr ::= Expr:ex EQUAL Expr:ex2 {: RESULT = ex +" = " + ex2; :}
+               | Expr:ex NOTEQUAL Expr:ex2 {: RESULT = ex +" != " + ex2; :};
 
-ActualParams ::= Expr ActualParam |  {::};
-ActualParam ::= COMMA Expr ActualParam |  {::};
+ActualParams ::= Expr:ex ActualParam:ap {: RESULT = ex + ap + ""; :} |  {: RESULT=""; :};
+ActualParam ::= COMMA Expr:ex ActualParam:ap {: RESULT = ", " + ex + ap; :} | {:RESULT="";:};

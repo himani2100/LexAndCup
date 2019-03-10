@@ -17,9 +17,12 @@ NONE = (\t|\r|\n|" ")
 <COMMENT>"**/" {yybegin(YYINITIAL);}
 <COMMENT>.|\r|\n { }
 
-<YYINITIAL>\"[^\"]*\" {return new Symbol(A4Symbol.QUOTATIONS);}
+<YYINITIAL>\"[^\"]*\" {return new Symbol(A4Symbol.QUOTATIONS, yytext());}
 
-<YYINITIAL>INT|REAL|STRING {return new Symbol(A4Symbol.TYPE);}
+<YYINITIAL>INT {return new Symbol(A4Symbol.INT);}
+<YYINITIAL>REAL {return new Symbol(A4Symbol.REAL);}
+<YYINITIAL>STRING {return new Symbol(A4Symbol.STRING);}
+
 <YYINITIAL>WRITE {return new Symbol(A4Symbol.WRITE);}
 <YYINITIAL>RETURN {return new Symbol(A4Symbol.RETURN);}
 <YYINITIAL>READ {return new Symbol(A4Symbol.READ);}
@@ -29,8 +32,8 @@ NONE = (\t|\r|\n|" ")
 <YYINITIAL>END {return new Symbol(A4Symbol.END);}
 <YYINITIAL>BEGIN {return new Symbol(A4Symbol.BEGIN);}
 
-<YYINITIAL>[a-zA-Z][a-zA-Z0-9]* {return new Symbol(A4Symbol.ID);}
-<YYINITIAL>[0-9]+(\.[0-9]+)? {return new Symbol(A4Symbol.NUMBER);}
+<YYINITIAL>[a-zA-Z][a-zA-Z0-9]* {System.out.println(yytext());return new Symbol(A4Symbol.ID, yytext());}
+<YYINITIAL>[0-9]+(\.[0-9]+)? {System.out.println(yytext());return new Symbol(A4Symbol.NUMBER, yytext());}
 
 
 <YYINITIAL>"(" {return new Symbol(A4Symbol.LEBRAC);}

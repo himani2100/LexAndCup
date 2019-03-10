@@ -7,7 +7,7 @@ import java.io.*;
 
          File inputFile = new File ("A4.tiny");
          A4Parser parser= new A4Parser(new A4Scanner(new FileInputStream(inputFile)));
-         String javaProgram =(String)parser.debug_parse().value;
+         String javaProgram =(String)parser.parse().value;
          FileWriter fw=new FileWriter(new File("A4.java"));
          fw.write(javaProgram);
          fw.close();
