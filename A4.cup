@@ -8,13 +8,14 @@ nonterminal String Program, _Program, MethodDecl,
                   ReturnStmt, WriteStmt, ReadStmt,
                   ExprOps, Expr, MultiExpr, MultiExprOps,
                   BoolExpr, ActualParams, ActualParam,
-                  PrimaryExpr, Statement, _Statement, Type;
+                  PrimaryExpr, Statement, _Statement, Type,ExtraNonTerminal;
 
-Program ::= MethodDecl:d _Program:g
+ExtraNonTerminal::= Program:g
                {:
-                  RESULT = "import java.io.*;\npublic class A4\n{\nstatic BufferedReader $br;\nstatic BufferedWriter $bw;\n" + d + g + "\n}";
+                  RESULT = "import java.io.*;\npublic class A4\n{\nstatic BufferedReader $br;\nstatic BufferedWriter $bw;\n" + g + "\n}";
                :};
-
+Program ::= MethodDecl:d _Program:g{:RESULT= d+g+"";:}
+;
 Type ::= INT {:
                   RESULT = " int ";
                :}
@@ -30,7 +31,7 @@ Type ::= INT {:
 
 _Program ::= MethodDecl:d _Program:g
             {:
-               RESULT = d + g;
+               RESULT = d + g+"";
             :}
             | {:RESULT = "";:};
 
@@ -54,12 +55,12 @@ _FormalParams ::= COMMA FormalParam:f _FormalParams:p {: RESULT = ", " + f + p; 
 FormalParam ::= Type:h ID:i {: RESULT = h + i + ""; :}
                ;
 
-Block ::= BEGIN _Statement:_s Statement:s END {: RESULT = "{\n" + _s +"\n"+ s +"\n}"; :};
+Block ::= BEGIN _Statement:_s Statement:s END {: RESULT = "{\n" + _s + "\n" + s +"\n}"; :};
 
 Statement ::= _Statement:_s Statement:s
                {: RESULT = "\n" + _s + s + "\n"; :} | {:RESULT="";:};
 
-Other ::= Block:b
+Other ::= Block:b {: RESULT = b; :}
          |  LocalVarDecl:lv {: RESULT = lv; :}
          |  AssignStmt:as {: RESULT = as + ""; :}
          |  ReturnStmt:rs {: RESULT = rs + ""; :}
@@ -85,7 +86,7 @@ unmdstmt ::= IF LEBRAC BoolExpr:be RIGBRAC _Statement:_s {: RESULT = "if( " + be
             |
              IF LEBRAC BoolExpr:be RIGBRAC mdstmt:m ELSE unmdstmt:um {: RESULT = "if( " + be + ")\n" + m +" else " + um; :};
 
-WriteStmt ::= WRITE LEBRAC Expr:ex COMMA QUOTATIONS:q RIGBRAC SCOLON {: RESULT = "$bw = new BufferedWriter(new FileWriter(" + q +"));\n$bw.write(\"\"+ "+ex+");\n$bw.close();"; :};
+WriteStmt ::= WRITE LEBRAC Expr:ex COMMA QUOTATIONS:q RIGBRAC SCOLON {: RESULT = "$bw = new BufferedWriter(new FileWriter(" + q +"));\n$bw.write(\"\"+ ("+ex+"));\n$bw.close();"; :};
 
 ReadStmt ::= READ LEBRAC ID:i COMMA QUOTATIONS:q RIGBRAC SCOLON {: RESULT = "$br = new BufferedReader(new FileReader(" + q + "));\n" + i + " = new Integer($br.readLine()).intValue();\n$br.close();"; :};
 
@@ -109,7 +110,7 @@ PrimaryExpr ::= NUMBER:n {: RESULT = n + ""; :}
              | ID:i LEBRAC ActualParams:ap RIGBRAC {: RESULT = i+"(" +ap +")"; :}
              ;
 
-BoolExpr ::= Expr:ex EQUAL Expr:ex2 {: RESULT = ex +" = " + ex2; :}
+BoolExpr ::= Expr:ex EQUAL Expr:ex2 {: RESULT = ex +" == " + ex2; :}
                | Expr:ex NOTEQUAL Expr:ex2 {: RESULT = ex +" != " + ex2; :};
 
 ActualParams ::= Expr:ex ActualParam:ap {: RESULT = ex + ap + ""; :} |  {: RESULT=""; :};
